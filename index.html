@@ -152,15 +152,17 @@ Alias: ALUD.ASADO.GESTO</textarea>
     </div>
 
     <!-- 🔍 MODAL: VER QR GRANDE -->
-    <div id="modalQR" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 opacity-0 invisible transition-all">
-        <div class="transform scale-90 transition-all">
-            <div class="bg-white p-4 rounded-2xl shadow-2xl relative">
-                <button onclick="cerrarModal('qr')" class="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md"><i class="fa fa-times"></i></button>
-                <img id="qrGrandeImg" src="" class="w-[280px] h-[280px] object-contain" alt="QR Grande">
-                <p id="textoQRGrande" class="text-center mt-3 font-medium"></p>
-            </div>
+<div id="modalQR" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 opacity-0 invisible transition-all">
+    <div class="transform scale-90 transition-all">
+        <div class="bg-white p-4 rounded-2xl shadow-2xl relative">
+            <button onclick="cerrarModal('qr')" class="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md"><i class="fa fa-times"></i></button>
+            <!-- 🟢 AQUÍ ABAJO: FIJATE EL NOMBRE CORRECTO -->
+            <img id="qrGrandeImg" src="null.png" class="w-[280px] h-[280px] object-contain" alt="QR Grande">
+            <p id="textoQRGrande" class="text-center mt-3 font-medium"></p>
         </div>
     </div>
+</div>
+
 
     <script>
         // ⚙️ CONFIGURACIÓN
@@ -305,4 +307,4 @@ Alias: ALUD.ASADO.GESTO</textarea>
     </script>
 </body>
     </html>
-    
+                                                                 
