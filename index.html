@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pago Express - Tu Billetera Virtual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        success: '#00B42A',
+                        danger: '#F53F3F',
+                        neutral: '#1D2129',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans text-neutral min-h-screen">
+
+    <!-- Encabezado -->
+    <header class="bg-primary text-white pt-12 pb-6 px-5 rounded-b-[32px] shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-[26px] font-bold flex items-center gap-2">
+                    <i class="fa fa-wallet"></i> Pago Express
+                </h1>
+                <p class="text-primary-100 opacity-90 text-sm">Escaneá y pagá fácil</p>
+            </div>
+            <!-- 🔒 BOTÓN DE ADMINISTRADOR -->
+            <button id="btnAdmin" onclick="pedirContrasena()" class="bg-white/20 backdrop-blur-md w-10 h-10 rounded-full flex items-center justify-center text-white text-xl hover:bg-white/30 transition" title="Solo para dueño">
+                <i class="fa fa-lock"></i>
+            </button>
+        </div>
+        <div class="bg-white/15 backdrop-blur-md rounded-2xl p-4 mt-3">
+            <p class="text-sm text-white/80">Recibir dinero</p>
+            <p class="text-[32px] font-bold">$ <span id="saldo">0,00</span></p>
+        </div>
+    </header>
+
+    <main class="px-5 -mt-2 mb-20">
+        <!-- CUENTA PRINCIPAL (TU UALÁ - null.png) -->
+        <section class="mb-8 mt-2">
+            <h2 class="text-lg font-semibold mb-3 text-neutral-800 flex items-center gap-2">
+                <i class="fa fa-credit-card text-yellow-500"></i> Cuenta Principal
+            </h2>
+            <div class="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <!-- 📌 TU IMAGEN null.png (SE QUEDA ASÍ) -->
+                    <div class="bg-gray-50 p-2 rounded-xl border border-gray-200 w-[110px] h-[110px] flex items-center justify-center overflow-hidden">
+                        <img id="imgQRPrincipal" src="null.png" alt="Código QR Ualá" class="w-full h-full object-contain rounded-lg">
+                    </div>
+
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg">Juan José Ponce</h3>
+                        <p class="text-sm text-gray-500 mb-1">ALUD.ASADO.GESTO</p>
+                        <span class="bg-success/10 text-success text-xs font-medium px-2 py-0.5 rounded-full">Activo</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button onclick="verQR('principal')" class="bg-primary/5 text-primary font-medium py-2 rounded-lg text-sm hover:bg-primary/10 transition">
+                        <i class="fa fa-qrcode mr-1"></i> Ver QR
+                    </button>
+                    <button onclick="copiarDatos('principal')" class="bg-gray-100 text-gray-700 font-medium py-2 rounded-lg text-sm hover:bg-gray-200 transition">
+                        <i class="fa fa-copy mr-1"></i> Copiar Datos
+                    </button>
+                </div>
+
+                <!-- 📋 TUS DATOS GUARDADOS Y SEPARADOS -->
+                <textarea id="datosCuentaPrincipal" class="w-full h-0 opacity-0 absolute" readonly>Titular: Juan José Ponce
+Banco: Ualá
+DNI: 29242157
+Alias: ALUD.ASADO.GESTO</textarea>
+
+            </div>
+        </section>
+
+        <!-- OTRAS CUENTAS (ACÁ AGREGÁS MÁS) -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-semibold text-neutral-800 flex items-center gap-2">
+                    <i class="fa fa-folder-open text-blue-500"></i> Otras Formas de Pago
+                </h2>
+                <span class="text-sm text-gray-500" id="contadorCuentas">0 disponibles</span>
+            </div>
+            <div id="listaCuentas" class="space-y-3">
+                <div class="bg-gray-100 rounded-xl p-4 text-center text-gray-500 italic">
+                    <i class="fa fa-info-circle mr-2"></i> No hay métodos adicionales
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 📱 MENÚ DE ADMINISTRADOR (SOLO CON CLAVE) -->
+    <footer id="menuAdmin" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] py-3 px-6 z-40 hidden">
+        <div class="flex justify-center items-center">
+            <button onclick="abrirModalAgregar()" class="flex flex-col items-center gap-1 text-primary font-medium">
+                <div class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center -mt-5 shadow-lg hover:shadow-xl hover:scale-105 transition">
+                    <i class="fa fa-plus text-xl"></i>
+                </div>
+                <span class="text-[11px] mt-1">Agregar Nuevo</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- 🔐 MODAL: CONTRASEÑA -->
+    <div id="modalContrasena" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 opacity-0 invisible transition-all">
+        <div class="bg-white rounded-2xl w-full max-w-md p-5 transform scale-90 transition-all shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-neutral">🔒 Acceso Administrador</h3>
+                <button onclick="cerrarModal('contrasena')" class="text-gray-400 text-xl hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mb-1 block">Clave secreta</label>
+                    <input type="password" id="inputClave" placeholder="********" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                </div>
+                <button onclick="verificarContrasena()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition mt-2">✅ Ingresar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ MODAL: AGREGAR NUEVA CUENTA -->
+    <div id="modalAgregar" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 opacity-0 invisible transition-all">
+        <div class="bg-white rounded-2xl w-full max-w-md p-5 transform scale-90 transition-all shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-neutral">➕ Agregar Nueva Cuenta</h3>
+                <button onclick="cerrarModal('agregar')" class="text-gray-400 text-xl hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mb-1 block">Nombre visible</label>
+                    <input type="text" id="nuevoNombre" placeholder="Ej: Mercado Pago / Banco" class="w-full p-3 border border-gray-200 rounded-xl">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mb-1 block">Datos (cada uno en su línea)</label>
+                    <textarea id="nuevoDatos" rows="3" placeholder="Titular: Nombre\nBanco: X\nAlias: tu.alias" class="w-full p-3 border border-gray-200 rounded-xl"></textarea>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mb-1 block">Nombre de la imagen (ej: foto.png)</label>
+                    <input type="text" id="nuevoQRimg" placeholder="nombre-de-tu-foto.png" class="w-full p-3 border border-gray-200 rounded-xl">
+                </div>
+                <button onclick="guardarNuevaCuenta()" class="w-full bg-success text-white py-3 rounded-xl hover:bg-success/90 transition">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔍 MODAL: VER QR GRANDE -->
+    <div id="modalQR" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 opacity-0 invisible transition-all">
+        <div class="transform scale-90 transition-all">
+            <div class="bg-white p-4 rounded-2xl shadow-2xl relative">
+                <button onclick="cerrarModal('qr')" class="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md"><i class="fa fa-times"></i></button>
+                <img id="qrGrandeImg" src="" class="w-[280px] h-[280px] object-contain" alt="QR Grande">
+                <p id="textoQRGrande" class="text-center mt-3 font-medium"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚙️ CONFIGURACIÓN
+        const CLAVE_ADMIN = "1234"; // Tu clave
+        let misCuentas = [];
+        let modoAdmin = false;
+
+        window.onload = () => {
+            cargarDatosGuardados();
+            actualizarVistaCuentas();
+        };
+
+        // 🔒 SEGURIDAD
+        function pedirContrasena() {
+            abrirModal('contrasena');
+            document.getElementById('inputClave').value = '';
+        }
+        function verificarContrasena() {
+            if(document.getElementById('inputClave').value === CLAVE_ADMIN) {
+                modoAdmin = true;
+                cerrarModal('contrasena');
+                document.getElementById('menuAdmin').classList.remove('hidden');
+                actualizarVistaCuentas();
+                mostrarAviso('✅ Modo Administrador activado');
+            } else {
+                mostrarAviso('❌ Clave incorrecta');
+            }
+        }
+
+        // 📋 FUNCIONES PRINCIPALES
+        function verQR(idCuenta) {
+            let cuenta;
+            if(idCuenta === 'principal') {
+                cuenta = { nombre: 'Juan José Ponce - Ualá', qrImg: 'null.png' };
+            } else {
+                cuenta = misCuentas.find(c => c.id === idCuenta);
+            }
+            if(cuenta) {
+                document.getElementById('qrGrandeImg').src = cuenta.qrImg;
+                document.getElementById('textoQRGrande').textContent = cuenta.nombre;
+                abrirModal('qr');
+            }
+        }
+
+        function copiarDatos(idCuenta) {
+            let texto;
+            if(idCuenta === 'principal') {
+                texto = document.getElementById('datosCuentaPrincipal').value;
+            } else {
+                texto = misCuentas.find(c => c.id === idCuenta)?.datos || '';
+            }
+            navigator.clipboard.writeText(texto)
+                .then(() => mostrarAviso('✅ Datos copiados y ordenados'));
+        }
+
+        // ➕ ADMINISTRADOR: AGREGAR / BORRAR
+        function abrirModalAgregar() { 
+            if(!modoAdmin) return mostrarAviso('🔒 Solo el dueño puede hacer esto'); 
+            abrirModal('agregar'); 
+        }
+        function guardarNuevaCuenta() {
+            if(!modoAdmin) return;
+            const nombre = document.getElementById('nuevoNombre').value.trim();
+            const datos = document.getElementById('nuevoDatos').value.trim();
+            const qrImg = document.getElementById('nuevoQRimg').value.trim();
+            
+            if(!nombre || !datos || !qrImg) return mostrarAviso('❌ Faltan datos o nombre de imagen');
+
+            const nueva = { 
+                id: Date.now().toString(), 
+                nombre: nombre, 
+                datos: datos,
+                qrImg: qrImg
+            };
+            misCuentas.push(nueva);
+            guardarEnLocalStorage();
+            actualizarVistaCuentas();
+            cerrarModal('agregar');
+            mostrarAviso('✅ Nueva cuenta agregada');
+            // Limpiar campos
+            document.getElementById('nuevoNombre').value = '';
+            document.getElementById('nuevoDatos').value = '';
+            document.getElementById('nuevoQRimg').value = '';
+        }
+        function eliminarCuenta(id) {
+            if(!modoAdmin) return;
+            misCuentas = misCuentas.filter(c => c.id !== id);
+            guardarEnLocalStorage();
+            actualizarVistaCuentas();
+            mostrarAviso('🗑️ Cuenta eliminada');
+        }
+
+        // 💾 GUARDADO EN EL CELULAR
+        function guardarEnLocalStorage() { localStorage.setItem('pagoExpress_cuentas', JSON.stringify(misCuentas)); }
+        function cargarDatosGuardados() { const g = localStorage.getItem('pagoExpress_cuentas'); if(g) misCuentas = JSON.parse(g); }
+
+        // 📱 ACTUALIZAR VISTA
+        function actualizarVistaCuentas() {
+            const lista = document.getElementById('listaCuentas');
+            const contador = document.getElementById('contadorCuentas');
+            contador.textContent = `${misCuentas.length} método${misCuentas.length !== 1 ? 's' : ''}`;
+
+            if(misCuentas.length === 0) {
+                lista.innerHTML = `<div class="bg-gray-100 rounded-xl p-4 text-center text-gray-500 italic"><i class="fa fa-info-circle mr-2"></i> No hay métodos adicionales</div>`;
+                return;
+            }
+            lista.innerHTML = '';
+            misCuentas.forEach(c => {
+                const borrarBtn = modoAdmin ? `<button onclick="eliminarCuenta('${c.id}')" class="w-8 h-8 rounded bg-danger/10 text-danger hover:bg-danger/20 transition"><i class="fa fa-trash"></i></button>` : '';
+                lista.innerHTML += `
+                <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 hover:shadow-md transition">
+                    <img src="${c.qrImg}" class="w-10 h-10 rounded-lg object-contain" alt="QR">
+                    <div class="flex-1"><h4 class="font-semibold">${c.nombre}</h4></div>
+                    <div class="flex gap-1">
+                        <button onclick="verQR('${c.id}')" class="w-8 h-8 rounded bg-gray-100 hover:bg-gray-200 transition"><i class="fa fa-eye"></i></button>
+                        <button onclick="copiarDatos('${c.id}')" class="w-8 h-8 rounded bg-gray-100 hover:bg-gray-200 transition"><i class="fa fa-copy"></i></button>
+                        ${borrarBtn}
+                    </div>
+                </div>`;
+            });
+        }
+
+        // ⚙️ UTILIDADES
+        function abrirModal(n) {
+            document.getElementById(`modal${n.charAt(0).toUpperCase()+n.slice(1)}`).classList.remove('invisible','opacity-0');
+            document.body.style.overflow='hidden';
+        }
+        function cerrarModal(n) {
+            const m = document.getElementById(`modal${n.charAt(0).toUpperCase()+n.slice(1)}`);
+            m.classList.add('opacity-0');
+            setTimeout(()=>m.classList.add('invisible'),200);
+            document.body.style.overflow='auto';
+        }
+        function mostrarAviso(t) {
+            const a=document.createElement('div');
+            a.className='fixed bottom-20 left-1/2 -translate-x-1/2 bg-neutral/90 text-white px-4 py-2 rounded-full shadow-lg z-50 text-sm';
+            a.textContent=t;
+            document.body.appendChild(a);
+            setTimeout(()=>a.remove(),3000);
+        }
+    </script>
+</body>
+</html>
