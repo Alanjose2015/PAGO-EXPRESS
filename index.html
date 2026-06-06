@@ -192,18 +192,19 @@ Alias: ALUD.ASADO.GESTO</textarea>
 
         // 📋 FUNCIONES PRINCIPALES
         function verQR(idCuenta) {
-            let cuenta;
-            if(idCuenta === 'principal') {
-                cuenta = { nombre: 'Juan José Ponce - Ualá', qrImg: 'null.png' };
-            } else {
-                cuenta = misCuentas.find(c => c.id === idCuenta);
-            }
-            if(cuenta) {
-                document.getElementById('qrGrandeImg').src = cuenta.qrImg;
-                document.getElementById('textoQRGrande').textContent = cuenta.nombre;
-                abrirModal('qr');
-            }
-        }
+    let cuenta;
+    if(idCuenta === 'principal') {
+        cuenta = { nombre: 'Juan José Ponce - Ualá', qrImg: 'null.png' };
+    } else {
+        cuenta = misCuentas.find(c => c.id === idCuenta);
+    }
+    if(cuenta) {
+        document.getElementById('qrGrandeImg').src = cuenta.qrImg;
+        document.getElementById('textoQRGrande').textContent = cuenta.nombre;
+        abrirModal('qr');
+    }
+}
+
 
         function copiarDatos(idCuenta) {
             let texto;
@@ -303,5 +304,5 @@ Alias: ALUD.ASADO.GESTO</textarea>
         }
     </script>
 </body>
-                    </html>
-                
+    </html>
+    
